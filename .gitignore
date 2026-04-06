@@ -1,0 +1,33 @@
+# .NET / Visual Studio
+bin/
+obj/
+.vs/
+TestResults/
+
+# MSIX packaging outputs
+AppPackages/
+*.appxbundle
+*.appx
+*.msix
+*.msixbundle
+*.msixupload
+*.appxsym
+
+# Local signing material
+*.pfx
+*.cer
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Logs / temp
+*.log
+*.tmp
+*.temp
+
+# OS
+Thumbs.db
+Desktop.ini

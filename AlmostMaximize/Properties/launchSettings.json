@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "AlmostMaximize (Package)": {
+      "commandName": "MsixPackage",
+      "doNotLaunchApp": true
+    },
+    "AlmostMaximize (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
