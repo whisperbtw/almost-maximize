@@ -1,155 +1,88 @@
 # Almost Maximize
 
-Almost Maximize is an open-source PowerToys Command Palette extension for Windows.
+Uma extensão open-source para o PowerToys Command Palette que redimensiona a janela ativa para quase preencher a tela — com uma margem configurável nas bordas.
 
-It is a vibe-coded side project inspired by the "almost maximize" feel from Apple window management, but adapted for the PowerToys Command Palette on Windows.
-
-The extension resizes the current foreground window so it fills the monitor work area while keeping a configurable margin around the edges.
+Inspirada no comportamento de gerenciamento de janelas do macOS, mas feita para o Windows com o PowerToys.
 
 ![Almost Maximize preview](docs/almost-maximize-preview.png)
 
-## What It Does
+## O que faz
 
-- Adds an `Almost Maximize` action to the PowerToys Command Palette
-- Resizes the active window immediately using the default `30 px` margin
-- Adds a `Choose margin` action with presets:
-  - `20 px`
-  - `30 px`
-  - `40 px`
-  - `50 px`
-  - `60 px`
-- Uses the current monitor work area, so the taskbar and reserved desktop space are respected
+Às vezes maximizar é demais, mas redimensionar na mão é chato. Essa extensão fica no meio-termo: abre a janela grande o suficiente para parecer confortável, mas sem encostar nas bordas.
 
-## Why This Exists
+No Command Palette, aparecem duas ações:
 
-Sometimes full maximize is too aggressive, but manual resizing is annoying.
+- **Almost Maximize** — redimensiona na hora com margem padrão de 30 px
+- **Choose margin** — abre uma lista com presets: 20, 30, 40, 50 e 60 px
 
-This extension aims for the middle ground:
+A posição respeita a área útil do monitor, então taskbar e espaços reservados ficam de fora.
 
-- fast like a window manager shortcut
-- visual like an "almost maximized" layout
-- easy to trigger from the PowerToys Command Palette
-
-## Current Command Palette Flow
-
-Top-level actions:
-
-- `Almost Maximize`
-  Runs immediately with a `30 px` margin.
-- `Choose margin`
-  Opens a page with the `20 / 30 / 40 / 50 / 60 px` presets.
-
-## Project Structure
-
-- `AlmostMaximize/AlmostMaximizeCommandsProvider.cs`
-  Defines the top-level Command Palette entries.
-- `AlmostMaximize/Pages/AlmostMaximizePage.cs`
-  Defines the preset selection page.
-- `AlmostMaximize/AlmostMaximizeCommand.cs`
-  Contains the resize command and Win32 window resizing logic.
-- `AlmostMaximize/Package.appxmanifest`
-  MSIX package manifest for the extension host.
-- `install-local.ps1`
-  Helper script for local installation of the generated MSIX package.
-- `docs/almost-maximize-preview-realistic.png`
-  Preview/mockup used in this repository.
-
-## Documentation
-
-- [Local setup](docs/LOCAL_SETUP.md)
-- [Architecture](docs/ARCHITECTURE.md)
-
-## Supported Environment
+## Requisitos
 
 - Windows 11
-- PowerToys with Command Palette enabled
-
-The window resizing logic itself uses standard Win32 APIs, but this project is built and documented as a PowerToys Command Palette extension for Windows 11.
-
-## Requirements
-
-- Windows 11
-- PowerToys with Command Palette enabled
+- PowerToys com Command Palette ativado
 - .NET SDK
-- Developer Mode enabled in Windows for local sideloading
+- Developer Mode habilitado (para sideload local)
 
-## Local Development
+## Instalação local
 
-### 1. Build
+**Build:**
 
 ```powershell
 dotnet build .\AlmostMaximize\AlmostMaximize.csproj -p:RuntimeIdentifier=win-x64
 ```
 
-### 2. Publish an MSIX package
+**Publicar o pacote MSIX:**
 
 ```powershell
 dotnet publish .\AlmostMaximize\AlmostMaximize.csproj -c Release -p:Platform=x64 -p:GenerateAppxPackageOnBuild=true -p:AppxPackageSigningEnabled=false -p:AppxPackageDir=AppPackages\x64-manual\
 ```
 
-### 3. Install locally
-
-This project includes a helper script:
+**Instalar:**
 
 ```powershell
 .\install-local.ps1
 ```
 
-If Windows blocks installation, make sure:
+Se o Windows bloquear a instalação, confirme que o Developer Mode está ativo, que o certificado local é confiável, e reinicie o PowerToys depois.
 
-- Developer Mode is enabled
-- the local signing certificate is trusted
-- PowerToys is restarted after reinstalling the package
+## Estrutura do projeto
 
-## Icons And Assets
+| Arquivo                             | O que faz                             |
+| ----------------------------------- | ------------------------------------- |
+| `AlmostMaximizeCommandsProvider.cs` | Define as entradas do Command Palette |
+| `Pages/AlmostMaximizePage.cs`       | Página de seleção de margem           |
+| `AlmostMaximizeCommand.cs`          | Lógica de redimensionamento via Win32 |
+| `Package.appxmanifest`              | Manifesto do pacote MSIX              |
+| `install-local.ps1`                 | Script de instalação local            |
 
-For the Command Palette result icon, the safest format is:
+## Ícones
 
-- PNG
-- transparent background
-- `24x24 px`
+O ícone que aparece nos resultados do Command Palette fica em:
 
-The current result icon file is:
+AlmostMaximize/Assets/Square44x44Logo.targetsize-24_altform-unplated.png
 
-- `AlmostMaximize/Assets/Square44x44Logo.targetsize-24_altform-unplated.png`
-
-The repository also includes generated package assets such as:
-
-- `Square44x44Logo`
-- `Square150x150Logo`
-- `Wide310x150Logo`
-- `SplashScreen`
-- `StoreLogo`
+Use PNG com fundo transparente em 24×24 px. O repositório também inclui os assets padrão do pacote MSIX (Square150x150Logo, Wide310x150Logo, StoreLogo etc.).
 
 ## Troubleshooting
 
-### The extension does not appear in Command Palette
+**A extensão não aparece no Command Palette**
+Reinstale o pacote, reinicie o PowerToys e reabra o Command Palette. Se continuar sem aparecer, veja os logs em `%LOCALAPPDATA%\Microsoft\PowerToys\CmdPal\Logs`.
 
-- Confirm the package is installed
-- Restart PowerToys
-- Reopen Command Palette
-- Check logs under:
-  - `%LOCALAPPDATA%\Microsoft\PowerToys\CmdPal\Logs`
+**O ícone não atualiza**
+Reinicie o PowerToys depois de reinstalar. Se precisar, troque o arquivo de ícone 24×24 e rebuilde.
 
-### The icon does not update
+**O Windows bloqueia a instalação do MSIX**
+Causas mais comuns: Developer Mode desabilitado, certificado não confiável, ou conflito de versão ao reinstalar sem remover o pacote anterior.
 
-- Restart PowerToys completely
-- Reinstall the local MSIX package
-- Replace the `24x24` icon file and rebuild
+## Documentação
 
-### Windows blocks the MSIX install
+- [Setup local](docs/LOCAL_SETUP.md)
+- [Arquitetura](docs/ARCHITECTURE.md)
 
-Typical causes:
+## Notas
 
-- Developer Mode disabled
-- certificate not trusted
-- package version/content mismatch during reinstall
-
-## Notes
-
-- This is an independent community project
-- It is inspired by Apple window behavior, but it is not affiliated with Apple or Microsoft
-- The current implementation focuses on local usage through PowerToys Command Palette
+Projeto comunitário independente, sem vínculo com Apple ou Microsoft. A implementação atual foca em uso local via PowerToys Command Palette.
 
 ## License
 

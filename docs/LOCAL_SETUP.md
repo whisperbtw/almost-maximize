@@ -1,61 +1,38 @@
 # Local Setup
 
-This project is meant to run locally as a PowerToys Command Palette extension.
+Rode localmente como uma extensão do PowerToys Command Palette.
 
-## Requirements
+## Requisitos
 
 - Windows 11
-- PowerToys installed
-- Command Palette enabled in PowerToys
+- PowerToys instalado com Command Palette ativado
 - .NET SDK
-- Developer Mode enabled in Windows
-
-This repository is documented and supported as a Windows 11 PowerToys Command Palette extension.
+- Developer Mode habilitado no Windows
 
 ## Build
-
 ```powershell
 dotnet build .\AlmostMaximize\AlmostMaximize.csproj -p:RuntimeIdentifier=win-x64
 ```
 
-## Package
-
+## Publicar o pacote
 ```powershell
 dotnet publish .\AlmostMaximize\AlmostMaximize.csproj -c Release -p:Platform=x64 -p:GenerateAppxPackageOnBuild=true -p:AppxPackageSigningEnabled=false -p:AppxPackageDir=AppPackages\x64-manual\
 ```
 
-## Install
-
-Use the helper script:
-
+## Instalar
 ```powershell
 .\install-local.ps1
 ```
 
-## After Reinstalling
+Depois de reinstalar, feche e reabra o Command Palette. Se a extensão não aparecer, reinicie o PowerToys.
 
-- close Command Palette
-- open it again
-- if the extension still does not refresh, restart PowerToys completely
+## Problemas comuns
 
-## Common Problems
+**O pacote não instala**
+Verifique se o Developer Mode está ativado, se o certificado é confiável, e se a versão antiga foi removida antes de reinstalar.
 
-### The package will not install
+**O ícone não atualiza**
+Reinicie o PowerToys depois de reinstalar.
 
-Check:
-
-- Developer Mode is enabled
-- the certificate is trusted
-- the old package was removed before reinstalling a changed package with the same version
-
-### The icon does not update
-
-Restart PowerToys after reinstalling the package.
-
-### The extension does not show up
-
-Check logs in:
-
-```text
-%LOCALAPPDATA%\Microsoft\PowerToys\CmdPal\Logs
-```
+**A extensão não aparece**
+Veja os logs em `%LOCALAPPDATA%\Microsoft\PowerToys\CmdPal\Logs`.
