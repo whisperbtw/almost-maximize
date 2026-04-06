@@ -10,10 +10,11 @@ namespace AlmostMaximize;
 
 internal sealed partial class CustomPercentagePage : ContentPage
 {
-    private readonly CustomPercentageForm _form = new();
+    private readonly CustomPercentageForm _form;
 
-    public CustomPercentagePage()
+    public CustomPercentagePage(AlmostMaximizePage parentPage)
     {
+        _form = new(parentPage);
         Icon = IconHelpers.FromRelativePath("Assets\\Square44x44Logo.targetsize-24_altform-unplated.png");
         Title = "Custom percentage";
         Name = "Enter a custom size";
@@ -24,8 +25,11 @@ internal sealed partial class CustomPercentagePage : ContentPage
 
 internal sealed partial class CustomPercentageForm : FormContent
 {
-    public CustomPercentageForm()
+    private readonly AlmostMaximizePage _parentPage;
+
+    public CustomPercentageForm(AlmostMaximizePage parentPage)
     {
+        _parentPage = parentPage;
         TemplateJson = $$"""
         {
           "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
@@ -51,6 +55,7 @@ internal sealed partial class CustomPercentageForm : FormContent
               "placeholder": "Example: 85",
               "min": {{WindowResizer.MinPercentage}},
               "max": {{WindowResizer.MaxPercentage}},
+              "isRequired": true,
               "value": 90
             }
           ],
@@ -67,11 +72,11 @@ internal sealed partial class CustomPercentageForm : FormContent
     public override CommandResult SubmitForm(string payload)
     {
         var percentageText = JsonNode.Parse(payload)?["percentage"]?.ToString();
-        if (!AlmostMaximizeRunner.TryParsePercentage(percentageText, out var percentage))
+        if (!int.TryParse(percentageText, out var percentage))
         {
             return CommandResult.ShowToast(new ToastArgs()
             {
-                Message = "Enter a valid percentage before applying.",
+                Message = "Enter a whole number percentage before applying.",
                 Result = CommandResult.KeepOpen(),
             });
         }
@@ -85,6 +90,14 @@ internal sealed partial class CustomPercentageForm : FormContent
             });
         }
 
-        return AlmostMaximizeRunner.ScheduleResize(percentage);
+        var added = _parentPage.SaveCustomPercentage(percentage);
+
+        return CommandResult.ShowToast(new ToastArgs()
+        {
+            Message = added
+                ? $"Saved {percentage}% to the list."
+                : $"{percentage}% is already available in the list.",
+            Result = CommandResult.GoBack(),
+        });
     }
 }

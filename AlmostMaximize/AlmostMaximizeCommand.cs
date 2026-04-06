@@ -57,8 +57,8 @@ internal static class AlmostMaximizeRunner
 
 internal static class WindowResizer
 {
-    internal const double MaxPercentage = 100;
-    internal const double MinPercentage = 1;
+    internal const int MaxPercentage = 100;
+    internal const int MinPercentage = 1;
     private const int SwRestore = 9;
     private const uint MonitorDefaultToNearest = 2;
     private const uint GaRoot = 2;
