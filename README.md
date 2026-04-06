@@ -59,6 +59,13 @@ Top-level actions:
 - [Local setup](docs/LOCAL_SETUP.md)
 - [Architecture](docs/ARCHITECTURE.md)
 
+## Supported Environment
+
+- Windows 11
+- PowerToys with Command Palette enabled
+
+The window resizing logic itself uses standard Win32 APIs, but this project is built and documented as a PowerToys Command Palette extension for Windows 11.
+
 ## Requirements
 
 - Windows 11

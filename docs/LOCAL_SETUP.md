@@ -4,11 +4,13 @@ This project is meant to run locally as a PowerToys Command Palette extension.
 
 ## Requirements
 
-- Windows
+- Windows 11
 - PowerToys installed
 - Command Palette enabled in PowerToys
 - .NET SDK
 - Developer Mode enabled in Windows
+
+This repository is documented and supported as a Windows 11 PowerToys Command Palette extension.
 
 ## Build
 
