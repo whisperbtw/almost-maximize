@@ -54,6 +54,11 @@ Top-level actions:
 - `docs/almost-maximize-preview-realistic.png`
   Preview/mockup used in this repository.
 
+## Documentation
+
+- [Local setup](docs/LOCAL_SETUP.md)
+- [Architecture](docs/ARCHITECTURE.md)
+
 ## Requirements
 
 - Windows 11
