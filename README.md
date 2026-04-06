@@ -12,8 +12,8 @@ Inspirada no comportamento de gerenciamento de janelas do macOS, mas feita para 
 
 No Command Palette, aparecem duas ações:
 
-- **Almost Maximize** — redimensiona na hora com margem padrão de 30 px
-- **Choose margin** — abre uma lista com presets: 20, 30, 40, 50 e 60 px
+- **Almost Maximize** — redimensiona na hora para 90% do tamanho maximizado
+- **Choose percentage** — abre uma lista com presets: 90%, 80%, 70%, 60% e 50%, além de um valor personalizado
 
 A posição respeita a área útil do monitor, então taskbar e espaços reservados ficam de fora.
 
@@ -51,7 +51,8 @@ Se o Windows bloquear a instalação, confirme que o Developer Mode está ativo,
 | Arquivo                             | O que faz                             |
 | ----------------------------------- | ------------------------------------- |
 | `AlmostMaximizeCommandsProvider.cs` | Define as entradas do Command Palette |
-| `Pages/AlmostMaximizePage.cs`       | Página de seleção de margem           |
+| `Pages/AlmostMaximizePage.cs`       | Página de seleção por porcentagem     |
+| `Pages/CustomPercentagePage.cs`     | Formulário de porcentagem personalizada |
 | `AlmostMaximizeCommand.cs`          | Lógica de redimensionamento via Win32 |
 | `Package.appxmanifest`              | Manifesto do pacote MSIX              |
 | `install-local.ps1`                 | Script de instalação local            |
@@ -74,6 +75,9 @@ Reinicie o PowerToys depois de reinstalar. Se precisar, troque o arquivo de íco
 
 **O Windows bloqueia a instalação do MSIX**
 Causas mais comuns: Developer Mode desabilitado, certificado não confiável, ou conflito de versão ao reinstalar sem remover o pacote anterior.
+
+**A extensão mexeu na taskbar ou no system tray**
+As janelas do shell do Windows são ignoradas de propósito nas versões mais recentes da extensão.
 
 ## Documentação
 

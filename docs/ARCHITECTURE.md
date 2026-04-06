@@ -18,10 +18,13 @@ Inicia o servidor COM e registra a classe da extensão.
 Implementa `IExtension` e retorna o provider de `ProviderType.Commands`.
 
 **`AlmostMaximizeCommandsProvider.cs`**
-Define as entradas do Command Palette: `Almost Maximize` e `Choose margin`.
+Define as entradas do Command Palette: `Almost Maximize` e `Choose percentage`.
 
 **`Pages/AlmostMaximizePage.cs`**
-Lista os presets de margem: 20, 30, 40, 50 e 60 px.
+Lista os presets por porcentagem: 90%, 80%, 70%, 60% e 50%.
+
+**`Pages/CustomPercentagePage.cs`**
+Renderiza o formulário para porcentagem personalizada.
 
 **`AlmostMaximizeCommand.cs`**
 Executa o redimensionamento via Win32:
@@ -29,7 +32,9 @@ Executa o redimensionamento via Win32:
 
 ## O que o comando faz
 
-Pega a janela ativa, restaura se estiver maximizada, lê a área útil do monitor atual, aplica a margem configurada e reposiciona a janela.
+Pega a janela ativa, restaura se estiver maximizada, lê a área útil do monitor atual, calcula o tamanho final com base na porcentagem escolhida e reposiciona a janela no centro.
+
+Janelas do shell do Windows, como taskbar e system tray, são ignoradas.
 
 ## Assets
 

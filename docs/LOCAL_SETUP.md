@@ -26,6 +26,8 @@ dotnet publish .\AlmostMaximize\AlmostMaximize.csproj -c Release -p:Platform=x64
 
 Depois de reinstalar, feche e reabra o Command Palette. Se a extensão não aparecer, reinicie o PowerToys.
 
+A interface atual usa `90%` como ação padrão. A lista secundária expõe presets por porcentagem e um campo de valor personalizado.
+
 ## Problemas comuns
 
 **O pacote não instala**

@@ -10,23 +10,28 @@ namespace AlmostMaximize;
 
 internal sealed partial class AlmostMaximizePage : ListPage
 {
-    private static readonly int[] Margins = [20, 30, 40, 50, 60];
+    private static readonly double[] Percentages = [90, 80, 70, 60, 50];
 
     public AlmostMaximizePage()
     {
         Icon = IconHelpers.FromRelativePath("Assets\\Square44x44Logo.targetsize-24_altform-unplated.png");
-        Title = "Choose margin";
-        Name = "Select a preset";
+        Title = "Choose percentage";
+        Name = "Select a preset size or create your own";
     }
 
     public override IListItem[] GetItems()
     {
         return [
-            ..Margins.Select(margin => new ListItem(new AlmostMaximizeCommand(margin))
+            ..Percentages.Select(percentage => new ListItem(new AlmostMaximizeCommand(percentage))
             {
-                Title = $"Apply {margin} px margin",
-                Subtitle = $"Resize the active window to fill the work area with a {margin} px border.",
+                Title = $"Apply {percentage:0.#}%",
+                Subtitle = $"Resize the active window to {percentage:0.#}% of the maximized size.",
             }),
+            new ListItem(new CustomPercentagePage())
+            {
+                Title = "Custom percentage",
+                Subtitle = "Enter your own size percentage.",
+            },
         ];
     }
 }

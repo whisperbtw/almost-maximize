@@ -18,14 +18,14 @@ public partial class AlmostMaximizeCommandsProvider : CommandProvider
         DisplayName = "Window Resize Tools";
         Icon = IconHelpers.FromRelativePath(ResultIconPath);
         _commands = [
-            new CommandItem(new AlmostMaximizeCommand(30))
+            new CommandItem(new AlmostMaximizeCommand(90))
             {
                 Title = "Almost Maximize",
                 Icon = IconHelpers.FromRelativePath(ResultIconPath),
             },
             new CommandItem(new AlmostMaximizePage())
             {
-                Title = "Choose margin",
+                Title = "Choose percentage",
                 Icon = IconHelpers.FromRelativePath(ResultIconPath),
             },
         ];

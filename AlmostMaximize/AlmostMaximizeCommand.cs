@@ -1,5 +1,7 @@
 using System;
+using System.Globalization;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.CommandPalette.Extensions;
 using Microsoft.CommandPalette.Extensions.Toolkit;
@@ -8,21 +10,29 @@ namespace AlmostMaximize;
 
 internal sealed partial class AlmostMaximizeCommand : InvokableCommand
 {
-    private readonly int _margin;
+    private readonly double _percentage;
 
-    public AlmostMaximizeCommand(int margin)
+    public AlmostMaximizeCommand(double percentage)
     {
-        _margin = Math.Max(0, margin);
-        Name = $"Almost maximize with {_margin} px margin";
+        _percentage = Math.Max(0, percentage);
+        Name = $"Almost maximize at {_percentage:0.#}% of maximized size";
     }
 
     public override ICommandResult Invoke()
+    {
+        return AlmostMaximizeRunner.ScheduleResize(_percentage);
+    }
+}
+
+internal static class AlmostMaximizeRunner
+{
+    public static CommandResult ScheduleResize(double percentage)
     {
         _ = Task.Run(async () =>
         {
             await Task.Delay(150).ConfigureAwait(false);
 
-            var result = WindowResizer.AlmostMaximizeForegroundWindow(_margin);
+            var result = WindowResizer.AlmostMaximizeForegroundWindow(percentage);
             if (!result.Success)
             {
                 new ToastStatusMessage(result.Message).Show();
@@ -31,14 +41,30 @@ internal sealed partial class AlmostMaximizeCommand : InvokableCommand
 
         return CommandResult.Dismiss();
     }
+
+    public static bool TryParsePercentage(string? input, out double percentage)
+    {
+        percentage = 0;
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            return false;
+        }
+
+        return double.TryParse(input, NumberStyles.Float, CultureInfo.InvariantCulture, out percentage)
+            || double.TryParse(input, NumberStyles.Float, CultureInfo.CurrentCulture, out percentage);
+    }
 }
 
 internal static class WindowResizer
 {
+    internal const double MaxPercentage = 100;
+    internal const double MinPercentage = 1;
     private const int SwRestore = 9;
     private const uint MonitorDefaultToNearest = 2;
+    private const uint GaRoot = 2;
+    private static readonly IntPtr ShellWindow = NativeMethods.GetShellWindow();
 
-    public static ResizeResult AlmostMaximizeForegroundWindow(int margin)
+    public static ResizeResult AlmostMaximizeForegroundWindow(double percentage)
     {
         var hwnd = NativeMethods.GetForegroundWindow();
         if (hwnd == IntPtr.Zero)
@@ -49,6 +75,17 @@ internal static class WindowResizer
         if (!NativeMethods.IsWindow(hwnd))
         {
             return new ResizeResult(false, "The active window is no longer available.");
+        }
+
+        var rootHwnd = NativeMethods.GetAncestor(hwnd, GaRoot);
+        if (rootHwnd != IntPtr.Zero)
+        {
+            hwnd = rootHwnd;
+        }
+
+        if (!IsSupportedWindow(hwnd, out var unsupportedMessage))
+        {
+            return new ResizeResult(false, unsupportedMessage);
         }
 
         var monitor = NativeMethods.MonitorFromWindow(hwnd, MonitorDefaultToNearest);
@@ -64,21 +101,48 @@ internal static class WindowResizer
         }
 
         var workArea = monitorInfo.rcWork;
-        var boundedMargin = Math.Max(0, Math.Min(margin, Math.Min(workArea.Width, workArea.Height) / 2));
+        var boundedPercentage = Math.Max(MinPercentage, Math.Min(percentage, MaxPercentage));
+        var targetWidth = Math.Max(1, (int)Math.Round(workArea.Width * (boundedPercentage / 100d)));
+        var targetHeight = Math.Max(1, (int)Math.Round(workArea.Height * (boundedPercentage / 100d)));
+        var targetLeft = workArea.Left + Math.Max(0, (workArea.Width - targetWidth) / 2);
+        var targetTop = workArea.Top + Math.Max(0, (workArea.Height - targetHeight) / 2);
 
         NativeMethods.ShowWindow(hwnd, SwRestore);
 
         var moved = NativeMethods.MoveWindow(
             hwnd,
-            workArea.Left + boundedMargin,
-            workArea.Top + boundedMargin,
-            Math.Max(1, workArea.Width - (boundedMargin * 2)),
-            Math.Max(1, workArea.Height - (boundedMargin * 2)),
+            targetLeft,
+            targetTop,
+            targetWidth,
+            targetHeight,
             true);
 
         return moved
-            ? new ResizeResult(true, $"Window resized with a {boundedMargin} px margin.")
+            ? new ResizeResult(true, $"Window resized to {boundedPercentage:0.#}% of the maximized size.")
             : new ResizeResult(false, "Windows could not resize the active window.");
+    }
+
+    private static bool IsSupportedWindow(IntPtr hwnd, out string message)
+    {
+        if (hwnd == ShellWindow)
+        {
+            message = "The Windows shell cannot be resized with this command.";
+            return false;
+        }
+
+        var className = NativeMethods.GetWindowClassName(hwnd);
+        if (string.Equals(className, "Shell_TrayWnd", StringComparison.Ordinal) ||
+            string.Equals(className, "NotifyIconOverflowWindow", StringComparison.Ordinal) ||
+            string.Equals(className, "TrayNotifyWnd", StringComparison.Ordinal) ||
+            string.Equals(className, "Progman", StringComparison.Ordinal) ||
+            string.Equals(className, "WorkerW", StringComparison.Ordinal))
+        {
+            message = "Taskbar, system tray, and desktop shell windows are intentionally ignored.";
+            return false;
+        }
+
+        message = string.Empty;
+        return true;
     }
 
     internal readonly record struct ResizeResult(bool Success, string Message);
@@ -87,6 +151,12 @@ internal static class WindowResizer
     {
         [DllImport("user32.dll")]
         internal static extern IntPtr GetForegroundWindow();
+
+        [DllImport("user32.dll")]
+        internal static extern IntPtr GetShellWindow();
+
+        [DllImport("user32.dll")]
+        internal static extern IntPtr GetAncestor(IntPtr hwnd, uint gaFlags);
 
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -107,10 +177,20 @@ internal static class WindowResizer
         [return: MarshalAs(UnmanagedType.Bool)]
         internal static extern bool GetMonitorInfo(IntPtr hMonitor, ref MonitorInfo lpmi);
 
+        [DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        private static extern int GetClassName(IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);
+
         internal static MonitorInfo CreateMonitorInfo() => new()
         {
             cbSize = Marshal.SizeOf<MonitorInfo>(),
         };
+
+        internal static string GetWindowClassName(IntPtr hWnd)
+        {
+            StringBuilder className = new(256);
+            _ = GetClassName(hWnd, className, className.Capacity);
+            return className.ToString();
+        }
     }
 
     [StructLayout(LayoutKind.Sequential)]
