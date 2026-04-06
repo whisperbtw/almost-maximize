@@ -6,7 +6,7 @@ It is a vibe-coded side project inspired by the "almost maximize" feel from Appl
 
 The extension resizes the current foreground window so it fills the monitor work area while keeping a configurable margin around the edges.
 
-![Almost Maximize preview](docs/almost-maximize-preview-realistic.png)
+![Almost Maximize preview](docs/almost-maximize-preview.png)
 
 ## What It Does
 
