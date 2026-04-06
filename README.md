@@ -60,7 +60,7 @@ Se o Windows bloquear a instalação, confirme que o Developer Mode está ativo,
 
 O ícone que aparece nos resultados do Command Palette fica em:
 
-AlmostMaximize/Assets/Square44x44Logo.targetsize-24_altform-unplated.png
+[`Square44x44Logo.targetsize-24_altform-unplated.png`](AlmostMaximize/Assets/Square44x44Logo.targetsize-24_altform-unplated.png)
 
 Use PNG com fundo transparente em 24×24 px. O repositório também inclui os assets padrão do pacote MSIX (Square150x150Logo, Wide310x150Logo, StoreLogo etc.).
 
